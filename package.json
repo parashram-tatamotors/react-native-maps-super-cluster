@@ -1,6 +1,6 @@
 {
   "name": "react-native-maps-super-cluster",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "description": "A Clustering-enabled map for React Native",
   "main": "index.js",
   "scripts": {
@@ -38,14 +38,10 @@
   "peerDependencies": {
     "prop-types": "~15.7.2",
     "react-native": "*",
-    "react-native-hms-map": "*",
     "react-native-maps": "~0.25.0"
   },
   "peerDependenciesMeta": {
     "react-native-maps": {
-      "optional": true
-    },
-    "react-native-hms-map": {
       "optional": true
     }
   },

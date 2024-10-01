@@ -1,7 +1,7 @@
 // base libs
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Dimensions, LayoutAnimation } from 'react-native';
+import { Dimensions, LayoutAnimation, View } from 'react-native';
 // components / views
 import ClusterMarker from './ClusterMarker';
 // libs / utils
@@ -11,15 +11,13 @@ import {
   computeClusters,
   getCoordinatesFromItem,
 } from './util';
-////////////////////////////////////////////////////////////
-// This is to support Huawei Mobile Services Map
+
 let MapView = null;
 try {
   MapView = require('react-native-maps').default;
 } catch (e) {
-  MapView = require('react-native-hms-map').default;
+  MapView = View;
 }
-////////////////////////////////////////////////////////////
 
 export default class ClusteredMapView extends React.PureComponent {
   static getDerivedStateFromProps(props, state) {
