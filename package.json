@@ -2,8 +2,12 @@
   "name": "react-native-maps-super-cluster",
   "version": "1.6.0",
   "description": "A Clustering-enabled map for React Native",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "files": [
+    "dist/"
+  ],
   "scripts": {
+    "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -33,25 +37,26 @@
   "homepage": "https://github.com/novalabio/react-native-maps-super-cluster#readme",
   "dependencies": {
     "@mapbox/geo-viewport": "^0.5.0",
+    "@types/supercluster": "^5.0.3",
     "supercluster": "^7.1.4"
   },
   "peerDependencies": {
-    "prop-types": "~15.7.2",
     "react-native": "*",
-    "react-native-hms-map": "*",
-    "react-native-maps": "~0.25.0"
+    "react-native-maps": "~0.28.0"
   },
   "peerDependenciesMeta": {
     "react-native-maps": {
       "optional": true
-    },
-    "react-native-hms-map": {
-      "optional": true
     }
   },
   "devDependencies": {
+    "@types/mapbox__geo-viewport": "^0.4.1",
+    "@types/react": "^17.0.37",
+    "@types/react-native": "^0.66.9",
+    "@types/react-native-maps": "^0.24.2",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
-    "prettier": "^2.5.1"
+    "prettier": "^2.5.1",
+    "typescript": "^4.5.4"
   }
 }

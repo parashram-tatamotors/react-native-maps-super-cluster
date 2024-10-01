@@ -1,25 +1,30 @@
-import {Platform} from 'react-native';
-import SuperCluster from 'supercluster';
 import GeoViewport from '@mapbox/geo-viewport';
-
-export const IS_ANDROID = Platform.OS === 'android';
+import Supercluster from 'supercluster';
+import {
+  ICoordinate,
+  IMapRegion,
+  TBoundingBox,
+  TGeoJSONCoordinate,
+  TGeoJSONFeature,
+  TLocationAccessor,
+} from './types';
 
 /**
  * Compute clusters and return clustered data.
- *
- * @param {Object} index Supercluster instance
- * @param {Object} region map's region
- * @param {Object} size map's size
- * @param {Object} config
- * @returns {Array} clustered data
  */
-export const computeClusters = (index, region, {width, height}, {minZoom}) => {
+export const computeClusters = (
+  index: Supercluster,
+  region: IMapRegion,
+  width: number,
+  height: number,
+  minZoom: number,
+): any => {
   const bbox = regionToBoundingBox(region);
 
   const size = toGeoViewportFormat(width, height);
   const viewport =
     region.longitudeDelta >= 40
-      ? {zoom: minZoom}
+      ? { zoom: minZoom }
       : GeoViewport.viewport(bbox, size);
 
   return index.getClusters(bbox, viewport.zoom);
@@ -28,17 +33,27 @@ export const computeClusters = (index, region, {width, height}, {minZoom}) => {
 /**
  * Load given dataset into a newly created
  * Supercluster instance
- *
- * @param {Array} dataset data to clusterize
- * @param {Object} region map's region
- * @param {Object} config various config
- * @returns {Object} Supercluster instace
  */
+interface ICreateIndexAdditionalsParams {
+  extent: number;
+  radius: number;
+  minZoom: number;
+  maxZoom: number;
+  width: number;
+  accessor: TLocationAccessor;
+}
 export const createIndex = (
-  dataset,
-  {extent, radius, minZoom, maxZoom, width, accessor},
-) => {
-  const index = new SuperCluster({
+  dataset: any[],
+  {
+    extent,
+    radius,
+    minZoom,
+    maxZoom,
+    width,
+    accessor,
+  }: ICreateIndexAdditionalsParams,
+): Supercluster => {
+  const index = new Supercluster({
     // eslint-disable-line new-cap
     extent,
     minZoom,
@@ -47,9 +62,11 @@ export const createIndex = (
   });
 
   // get formatted GeoPoints for cluster
-  const rawData = dataset.map((item) => itemToGeoJSONFeature(item, accessor));
+  const rawData: any = dataset.map(item =>
+    itemToGeoJSONFeature(item, accessor),
+  );
 
-  // load geopoints into SuperCluster
+  // load geopoints into Supercluster
   index.load(rawData);
 
   return index;
@@ -58,7 +75,10 @@ export const createIndex = (
 /**
  * Format width and height for `GeoViewport`
  */
-export const toGeoViewportFormat = (width, height) => {
+export const toGeoViewportFormat = (
+  width: number,
+  height: number,
+): [number, number] => {
   return [width, height];
 };
 
@@ -67,7 +87,9 @@ export const toGeoViewportFormat = (width, height) => {
  * @param {Object} region - Google Maps/MapKit region
  * @returns {Object} - Region's bounding box as WSEN array
  */
-export const regionToBoundingBox = (region) => {
+export const regionToBoundingBox = (
+  region: IMapRegion,
+): [number, number, number, number] => {
   let lngD = region.longitudeDelta;
   if (lngD < 0) {
     lngD += 360;
@@ -88,10 +110,8 @@ export const regionToBoundingBox = (region) => {
  *   ws: { longitude: minLon, latitude: minLat }
  *   en: { longitude: maxLon, latitude: maxLat }
  * }
- * @param {Object} bbox - Bounding box
- * @returns {Object} - Google Maps/MapKit compliant region
  */
-export const boundingBoxToRegion = (bbox) => {
+export const boundingBoxToRegion = (bbox: TBoundingBox) => {
   const minLon = (bbox.ws.longitude * Math.PI) / 180;
   const maxLon = (bbox.en.longitude * Math.PI) / 180;
 
@@ -121,13 +141,21 @@ export const boundingBoxToRegion = (bbox) => {
   };
 };
 
-export const getCoordinatesFromItem = (item, accessor, asArray = true) => {
-  let coordinates = [];
+export const getCoordinatesFromItem = (
+  item: any,
+  accessor: TLocationAccessor,
+  asArray = true,
+): ICoordinate | TGeoJSONCoordinate => {
+  let coordinates: ICoordinate | TGeoJSONCoordinate;
 
   if (typeof accessor === 'string') {
     coordinates = [item[accessor].longitude, item[accessor].latitude];
   } else if (typeof accessor === 'function') {
     coordinates = accessor(item);
+  } else {
+    throw new Error(
+      'Invalid location accessor, see documentation about "accessor" prop.',
+    );
   }
 
   if (asArray) {
@@ -148,8 +176,14 @@ export const getCoordinatesFromItem = (item, accessor, asArray = true) => {
  * @param {Function|String} accessor - accessor for item coordinate values. Could be a string (field name) or a function (that describe how to access to coordinate data).
  * @returns {Object} - GeoJSON Feature object
  */
-export const itemToGeoJSONFeature = (item, accessor) => {
-  const coordinates = getCoordinatesFromItem(item, accessor);
+export const itemToGeoJSONFeature = (
+  item: any,
+  accessor: TLocationAccessor,
+): TGeoJSONFeature => {
+  const coordinates = getCoordinatesFromItem(
+    item,
+    accessor,
+  ) as TGeoJSONCoordinate;
 
   return {
     type: 'Feature',
@@ -157,6 +191,6 @@ export const itemToGeoJSONFeature = (item, accessor) => {
       coordinates,
       type: 'Point',
     },
-    properties: {point_count: 0, item}, // eslint-disable-line camelcase
+    properties: { point_count: 0, item, cluster_id: '' }, // eslint-disable-line camelcase
   };
 };
