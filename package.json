@@ -36,7 +36,8 @@
     "supercluster": "^6.0.2"
   },
   "peerDependencies": {
-    "prop-types": "15.7.2",
-    "react-native-maps": "^0.25.0"
-  }
+  "react-native": ">=0.60.0",
+  "react-native-maps": ">=0.25.0",
+  "prop-types": ">=15.7.2"
+}
 }
